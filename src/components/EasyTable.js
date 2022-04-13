@@ -19,7 +19,7 @@ function EasyTable(props) {
   const [selectedItem, setSelectedItem] = React.useState({})
   const [idColumnName, setIdColumnName] = React.useState('')
   const [total, setTotal] = React.useState(
-    props.pagination && !props.remotePagination ? props.data.length : 0
+    props.pagination && props.data ? props.data.length : 0
   )
   const [limit, setLimit] = React.useState(10)
   const [page, setPage] = React.useState(1)
@@ -46,6 +46,7 @@ function EasyTable(props) {
     } else {
       let dataUrl = props.listItemUrl
       let countUrl = props.totalPageCountUrl
+
       if (props.remotePagination) {
         fetch(countUrl)
           .then((res) => res.json())
@@ -55,16 +56,19 @@ function EasyTable(props) {
           .catch((err) => {
             console.log(err)
           })
-
-        fetch(dataUrl + '?page=' + page + '&limit=' + limit)
-          .then((res) => res.json())
-          .then((response) => {
-            setData(response)
-          })
-          .catch((err) => {
-            console.log(err)
-          })
       }
+
+      fetch(dataUrl + '?page=' + page + '&limit=' + limit)
+        .then((res) => res.json())
+        .then((response) => {
+          setData(response)
+          if (!props.remotePagination) {
+            setTotal(response.length)
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     }
   }
 
